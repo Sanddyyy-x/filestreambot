@@ -14,10 +14,23 @@ app = Client(
     bot_token=BOT_TOKEN
 )
 
-@app.on_message(filters.document)
+@app.on_message(filters.document | filters.video | filters.audio)
 async def handle_file(client, message):
-    file_id = message.document.file_id
-    file_name = message.document.file_name
+
+    if message.document:
+        file_id = message.document.file_id
+        file_name = message.document.file_name
+
+    elif message.video:
+        file_id = message.video.file_id
+        file_name = message.video.file_name
+
+    elif message.audio:
+        file_id = message.audio.file_id
+        file_name = message.audio.file_name
+
+    else:
+        return
 
     unique_id = save_file(file_id, file_name)
 
@@ -28,3 +41,4 @@ async def handle_file(client, message):
     )
 
 app.run()
+
