@@ -19,11 +19,16 @@ bot = Client(
 @app.route("/download/<unique_id>")
 def download(unique_id):
     file_data = get_file(unique_id)
+
     if not file_data:
         return "File not found"
 
-    with bot:
-        file_path = bot.download_media(file_data["file_id"])
+    file_id = file_data["file_id"]
+
+    # Start client only when needed
+    bot.start()
+    file_path = bot.download_media(file_id)
+    bot.stop()
 
     return send_file(file_path, as_attachment=True)
 
