@@ -1,4 +1,5 @@
 from pyrogram import Client, filters
+from pyrogram.enums import ParseMode
 from database import save_file
 import os
 
@@ -7,8 +8,8 @@ API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Clean BASE_URL (very important)
-BASE_URL = os.getenv("BASE_URL").strip().rstrip("/")
+# Clean BASE_URL safely
+BASE_URL = os.getenv("BASE_URL", "").strip().rstrip("/")
 
 # ===== Create Bot Client =====
 app = Client(
@@ -47,12 +48,12 @@ async def handle_file(client, message):
     # Generate clean link
     link = f"{BASE_URL}/download/{unique_id}"
 
-    # Send professional formatted message
+    # Send formatted message (Pyrogram v2 correct way)
     await message.reply_text(
         f"✅ **File Stored Successfully!**\n\n"
         f"📁 **File Name:** `{file_name}`\n\n"
         f"🔗 [Click Here to Download]({link})",
-        parse_mode="Markdown",
+        parse_mode=ParseMode.MARKDOWN,
         disable_web_page_preview=True
     )
 
