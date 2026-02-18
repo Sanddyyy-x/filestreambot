@@ -16,6 +16,9 @@ bot = Client(
     bot_token=BOT_TOKEN
 )
 
+# Start bot once when server starts
+bot.start()
+
 @app.route("/download/<unique_id>")
 def download(unique_id):
     file_data = get_file(unique_id)
@@ -24,11 +27,17 @@ def download(unique_id):
         return "File not found"
 
     file_id = file_data["file_id"]
+    original_name = file_data["file_name"]
 
-    # Start client only when needed
-    bot.start()
-    file_path = bot.download_media(file_id)
-    bot.stop()
+    # Download file with original filename in /tmp
+    file_path = bot.download_media(
+        file_id,
+        file_name=f"/tmp/{original_name}"
+    )
 
-    return send_file(file_path, as_attachment=True)
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name=original_name
+    )
 
