@@ -2,7 +2,6 @@ from flask import Flask, send_file
 from database import get_file
 from pyrogram import Client
 import os
-import asyncio
 
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
@@ -11,13 +10,11 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 app = Flask(__name__)
 
 bot = Client(
-    "bot_session",
+    "server_session",
     api_id=API_ID,
     api_hash=API_HASH,
     bot_token=BOT_TOKEN
 )
-
-bot.start()
 
 @app.route("/download/<unique_id>")
 def download(unique_id):
@@ -25,9 +22,8 @@ def download(unique_id):
     if not file_data:
         return "File not found"
 
-    file_id = file_data["file_id"]
-    file_name = file_data["file_name"]
+    with bot:
+        file_path = bot.download_media(file_data["file_id"])
 
-    file_path = asyncio.run(bot.download_media(file_id))
+    return send_file(file_path, as_attachment=True)
 
-    return send_file(file_path, as_attachment=True, download_name=file_name)
